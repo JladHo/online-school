@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import {ConflictError, UnauthorizedError} from "../../errors/HttpError";
 
 export class UserService {
-    constructor(readonly userRepository: IUserRepository) {
+    constructor(private readonly userRepository: IUserRepository) {
         this.userRepository = userRepository;
     }
 
