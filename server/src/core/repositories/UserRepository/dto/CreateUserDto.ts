@@ -26,8 +26,9 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'Телефон не может быть пустым.' })
     phone!: string;
 
-    @IsDateString({}, { message: 'Дата рождения должна быть в формате даты ISO 8601.' })
-    birthday!: Date;
+    @IsOptional()
+    @IsDateString({}, { message: 'Дата рождения должна быть формата: ДЕНЬ.МЕСЯЦ.ГОД' })
+    birthday?: Date;
 
     @IsEmail({}, { message: 'Некорректный формат email.' })
     email!: string;
