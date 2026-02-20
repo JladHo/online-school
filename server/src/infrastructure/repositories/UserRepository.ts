@@ -3,13 +3,14 @@ import {CreateUserDto} from "../../core/repositories/UserRepository/dto/CreateUs
 import {UserEntity} from "../../core/entities/UserEntity";
 import {UpdateUserDto} from "../../core/repositories/UserRepository/dto/UpdateUserDto";
 import {prisma} from "../db";
+import {UserMapper} from "../db/UserMapper";
 
 export class UserRepository implements IUserRepository {
     async create(dto: CreateUserDto): Promise<UserEntity> {
         const user = await prisma.user.create({
             data: { ...dto },
         });
-        return user;
+        return UserMapper.toEntity(user);
     }
 
     async delete(id: number): Promise<void> {
@@ -20,35 +21,35 @@ export class UserRepository implements IUserRepository {
 
     async findAll(): Promise<UserEntity[]> {
         const users = await prisma.user.findMany();
-        return users;
+        return users.map(UserMapper.toEntity);
     }
 
     async findByEmail(email: string): Promise<UserEntity | null> {
         const user = await prisma.user.findUnique({
             where: { email },
         });
-        return user;
+        return user ? UserMapper.toEntity(user) : null;
     }
 
     async findByEmailWithPassword(email: string): Promise<(UserEntity & { password: string }) | null> {
         const user = await prisma.user.findUnique({
             where: { email },
         });
-        return user;
+        return user ? UserMapper.toEntityWithPassword(user) : null;
     }
 
     async findById(id: number): Promise<UserEntity | null> {
-        const user = prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id },
         });
-        return user;
+        return user ? UserMapper.toEntity(user) : null;;
     }
 
     async update(id: number, dto: UpdateUserDto): Promise<UserEntity | null> {
-        const user = prisma.user.update({
+        const user = await prisma.user.update({
             where: { id },
             data: { ...dto }
         });
-        return user;
+        return user ? UserMapper.toEntity(user) : null;
     }
 }
