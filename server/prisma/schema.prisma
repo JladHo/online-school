@@ -1,11 +1,96 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  lastName   String
+  firstName  String
+  middleName String?
+  phone      String     @unique
+  email      String     @unique
+  password   String
+  role       UserRole   @default(user)
+  birthday   DateTime?
+  purchases  Purchase[]
+  reviews    Review[]
+}
+
+model Course {
+  id            Int           @id @default(autoincrement())
+  title         String
+  description   String
+  ageCategory   String
+  price         Float
+  modules       Module[]
+  purchases     Purchase[]
+  reviews       Review[]
+  applications  Application[]
+}
+
+model Module {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  courseId    Int
+  course      Course   @relation(fields: [courseId], references: [id])
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  content     String
+  moduleId    Int
+  module      Module @relation(fields: [moduleId], references: [id])
+}
+
+model Purchase {
+  id            Int      @id @default(autoincrement())
+  purchasePrice Float
+  purchaseAt    DateTime @default(now())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  courseId      Int
+  course        Course   @relation(fields: [courseId], references: [id])
+}
+
+model Review {
+  id       Int    @id @default(autoincrement())
+  text     String
+  rating   Int
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+}
+
+model Application {
+  id         Int               @id @default(autoincrement())
+  lastName   String
+  firstName  String
+  middleName String?
+  phone      String
+  email      String
+  status     ApplicationStatus @default(new)
+  courseId   Int
+  course     Course            @relation(fields: [courseId], references: [id])
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum ApplicationStatus {
+  new
+  in_progress
+  closed
+  rejected
 }
