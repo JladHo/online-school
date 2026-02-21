@@ -1,5 +1,5 @@
 import {User as PrismaUser} from '@prisma/client';
-import {UserEntity} from "../../core/entities/UserEntity";
+import {UserEntity} from "../../../core/entities/UserEntity";
 
 export class UserMapper {
     public static toEntity(user: PrismaUser): UserEntity {

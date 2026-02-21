@@ -33,3 +33,9 @@ export class ConflictError extends HttpError {
         super(409, message);
     }
 }
+
+export class InternalError extends HttpError {
+    constructor(message: string) {
+        super(409, message);
+    }
+}

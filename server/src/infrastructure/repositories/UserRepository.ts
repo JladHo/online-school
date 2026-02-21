@@ -3,7 +3,7 @@ import {CreateUserDto} from "../../core/repositories/UserRepository/dto/CreateUs
 import {UserEntity} from "../../core/entities/UserEntity";
 import {UpdateUserDto} from "../../core/repositories/UserRepository/dto/UpdateUserDto";
 import {prisma} from "../db";
-import {UserMapper} from "../db/UserMapper";
+import {UserMapper} from "../db/mappers/UserMapper";
 
 export class UserRepository implements IUserRepository {
     async create(dto: CreateUserDto): Promise<UserEntity> {

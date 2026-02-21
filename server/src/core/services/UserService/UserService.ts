@@ -5,7 +5,7 @@ import {UpdateUserDto} from "../../repositories/UserRepository/dto/UpdateUserDto
 import {LoginDto} from "../../repositories/UserRepository/dto/LoginDto";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import {ConflictError, UnauthorizedError} from "../../errors/HttpError";
+import {ConflictError, UnauthorizedError} from "../../../errors/HttpError";
 
 export class UserService {
     constructor(private readonly userRepository: IUserRepository) {
