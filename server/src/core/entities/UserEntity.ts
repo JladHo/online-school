@@ -1,10 +1,9 @@
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'manager' | 'teacher' | 'user';
 
 export interface UserEntity {
     id: number;
-    lastName: string;
-    firstName: string;
-    middleName?: string;
+    parentName: string;
+    studentName: string;
     phone: string;
     email: string;
     role: UserRole;

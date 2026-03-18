@@ -1,41 +1,14 @@
-import {
-    IsEmail,
-    IsString,
-    MinLength,
-    IsOptional,
-    IsDateString,
-    IsIn,
-    IsNotEmpty
-} from 'class-validator';
-import { UserRole } from "../../../entities/UserEntity";
+import { z } from 'zod';
 
-export class CreateUserDto {
-    @IsString({ message: 'Фамилия должна быть строкой.' })
-    @IsNotEmpty({ message: 'Фамилия не может быть пустой.' })
-    lastName!: string;
+export const CreateUserSchema = z.object({
+    parentName: z.string().min(2, { message: 'Имя родителя обязательно и должно содержать не менее 2 символов' }),
+    studentName: z.string().min(2, { message: 'Имя ученика обязательно и должно содержать не менее 2 символов' }),
+    phone: z.string().min(1, { message: 'Телефон обязателен' }).regex(
+        /^(\+7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/,
+        { message: 'Некорректный формат номера телефона' }),
+    email: z.email({ message: 'Некорректный формат email' }),
+    role: z.enum(['admin', 'manager', 'teacher', 'user']).optional(),
+    birthday: z.string().datetime({ message: "Некорректный формат даты" }).optional(),
+});
 
-    @IsString({ message: 'Имя должно быть строкой.' })
-    @IsNotEmpty({ message: 'Имя не может быть пустым.' })
-    firstName!: string;
-
-    @IsOptional()
-    @IsString({ message: 'Отчество должно быть строкой.' })
-    middleName?: string;
-
-    @IsString({ message: 'Телефон должен быть строкой.' })
-    @IsNotEmpty({ message: 'Телефон не может быть пустым.' })
-    phone!: string;
-
-    @IsOptional()
-    @IsDateString({}, { message: 'Дата рождения должна быть формата: ДЕНЬ.МЕСЯЦ.ГОД' })
-    birthday?: Date;
-
-    @IsEmail({}, { message: 'Некорректный формат email.' })
-    email!: string;
-
-    @MinLength(8, { message: 'Пароль должен содержать не менее 8 символов.' })
-    password!: string;
-
-    @IsIn(['admin', 'user'], { message: 'Роль может быть только "admin" или "user".' })
-    role!: UserRole;
-}
+export type CreateUserDto = z.infer<typeof CreateUserSchema>;

@@ -1,37 +1,13 @@
-import {
-    IsEmail,
-    IsString,
-    MinLength,
-    IsOptional,
-    IsDateString
-} from 'class-validator';
+import { z } from 'zod';
 
-export class UpdateUserDto {
-    @IsOptional()
-    @IsString({ message: 'Фамилия должна быть строкой.' })
-    lastName?: string;
+export const UpdateUserSchema = z.object({
+    parentName: z.string({ message: 'Имя родителя должно быть строкой.' }).optional(),
+    studentName: z.string({ message: 'Имя ученика должно быть строкой.' }).optional(),
+    phone: z.string({ message: 'Телефон должен быть строкой.' }).optional(),
+    birthday: z.string({ message: 'Дата рождения должна быть в формате ISO' }).datetime().optional(),
+    email: z.email('Некорректный формат email.').optional(),
+    role: z.enum(['admin', 'manager', 'teacher', 'user']).optional(),
+    password: z.string().min(8, 'Пароль должен содержать не менее 8 символов.').optional()
+});
 
-    @IsOptional()
-    @IsString({ message: 'Имя должно быть строкой.' })
-    firstName?: string;
-
-    @IsOptional()
-    @IsString({ message: 'Отчество должно быть строкой.' })
-    middleName?: string;
-
-    @IsOptional()
-    @IsString({ message: 'Телефон должен быть строкой.' })
-    phone?: string;
-
-    @IsOptional()
-    @IsDateString({}, { message: 'Дата рождения должна быть в формате даты ISO 8601.' })
-    birthday?: Date;
-
-    @IsOptional()
-    @IsEmail({}, { message: 'Некорректный формат email.' })
-    email?: string;
-
-    @IsOptional()
-    @MinLength(8, { message: 'Пароль должен содержать не менее 8 символов.' })
-    password?: string;
-}
+export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;

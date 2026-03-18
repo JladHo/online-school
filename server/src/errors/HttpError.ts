@@ -36,6 +36,6 @@ export class ConflictError extends HttpError {
 
 export class InternalError extends HttpError {
     constructor(message: string) {
-        super(409, message);
+        super(500, message);
     }
 }

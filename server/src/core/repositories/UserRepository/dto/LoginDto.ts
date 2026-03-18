@@ -1,10 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { z } from 'zod';
 
-export class LoginDto {
-    @IsEmail({}, { message: 'Некорректный формат email.' })
-    email!: string;
+export const LoginSchema = z.object({
+    email: z.email('Некорректный формат email.'),
+    password: z.string().min(1, 'Пароль не может быть пустым.')
+});
 
-    @IsString()
-    @IsNotEmpty({ message: 'Пароль не может быть пустым.' })
-    password!: string;
-}
+export type LoginDto = z.infer<typeof LoginSchema>;

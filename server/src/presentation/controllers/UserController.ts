@@ -1,22 +1,10 @@
 import {UserService} from "../../core/services/UserService/UserService";
 import {Request, Response, NextFunction} from "express";
-import {CreateUserDto} from "../../core/repositories/UserRepository/dto/CreateUserDto";
 import {LoginDto} from "../../core/repositories/UserRepository/dto/LoginDto";
 import {UpdateUserDto} from "../../core/repositories/UserRepository/dto/UpdateUserDto";
 
 export class UserController {
     constructor(private readonly userService: UserService) {}
-
-    async register(req: Request, res: Response, next: NextFunction) {
-        try {
-            const createUserDto: CreateUserDto = req.body;
-            const newUser = await this.userService.register(createUserDto);
-            res.status(201).json(newUser)
-            return;
-        } catch (error) {
-            next(error);
-        }
-    }
 
     async login(req: Request, res: Response, next: NextFunction) {
         try {

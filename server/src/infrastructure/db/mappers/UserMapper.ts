@@ -5,9 +5,8 @@ export class UserMapper {
     public static toEntity(user: PrismaUser): UserEntity {
         return {
             id: user.id,
-            lastName: user.lastName,
-            firstName: user.firstName,
-            middleName: user.middleName ?? undefined,
+            parentName: user.parentName,
+            studentName: user.studentName,
             phone: user.phone,
             email: user.email,
             role: user.role,
@@ -17,9 +16,8 @@ export class UserMapper {
     public static toEntityWithPassword(user: PrismaUser): UserEntity & { password: string } {
         return {
             id: user.id,
-            lastName: user.lastName,
-            firstName: user.firstName,
-            middleName: user.middleName ?? undefined,
+            parentName: user.parentName,
+            studentName: user.studentName,
             phone: user.phone,
             email: user.email,
             role: user.role,

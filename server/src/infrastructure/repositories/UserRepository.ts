@@ -6,9 +6,9 @@ import {prisma} from "../db";
 import {UserMapper} from "../db/mappers/UserMapper";
 
 export class UserRepository implements IUserRepository {
-    async create(dto: CreateUserDto): Promise<UserEntity> {
+    async create(data: CreateUserDto & { password: string }): Promise<UserEntity> {
         const user = await prisma.user.create({
-            data: { ...dto },
+            data: { ...data },
         });
         return UserMapper.toEntity(user);
     }
@@ -36,6 +36,13 @@ export class UserRepository implements IUserRepository {
             where: { email },
         });
         return user ? UserMapper.toEntityWithPassword(user) : null;
+    }
+
+    async findByPhone(phone: string): Promise<UserEntity | null> {
+        const user = await prisma.user.findUnique({
+            where: { phone },
+        });
+        return user ? UserMapper.toEntity(user) : null;
     }
 
     async findById(id: number): Promise<UserEntity | null> {

@@ -7,21 +7,36 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {ConflictError, UnauthorizedError} from "../../../errors/HttpError";
 
+function generatePassword(length = 10): string {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let retVal = "";
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+}
+
 export class UserService {
     constructor(private readonly userRepository: IUserRepository) {
         this.userRepository = userRepository;
     }
 
-    async register(dto: CreateUserDto): Promise<UserEntity> {
+    async create(dto: CreateUserDto): Promise<{ user: UserEntity, generatedPassword: string }> {
         // Проверяем, существует ли юзер с таким емейлом
-        const existingUser = await this.userRepository.findByEmail(dto.email);
-        if (existingUser) {
+        const existingUserEmail = await this.userRepository.findByEmail(dto.email);
+        if (existingUserEmail) {
             throw new ConflictError('Пользователь с таким Email уже существует.')
         }
 
-        // Хэшируем пароль
+        // Проверяем, существует ли юзер с таким телефоном
+        const existingUserPhone = await this.userRepository.findByPhone(dto.phone);
+        if (existingUserPhone) {
+            throw new ConflictError('Пользователь с таким номером телефона уже существует.')
+        }
+
+        const generatedPassword = generatePassword();
         const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '10');
-        const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
+        const hashedPassword = await bcrypt.hash(generatedPassword, saltRounds);
 
         // Создаем юзера в БД
         const newUser = await this.userRepository.create({
@@ -29,7 +44,7 @@ export class UserService {
             password: hashedPassword
         });
 
-        return newUser;
+        return { user: newUser, generatedPassword };
     }
 
     async login(dto: LoginDto): Promise<{user: UserEntity, accessToken: string}> {
@@ -54,7 +69,7 @@ export class UserService {
 
         const accessToken = jwt.sign(payload, secret, {expiresIn: '24h'});
         const {password, ...userWithoutPassword} = user;
-        return {user: userWithoutPassword, accessToken};
+        return {user: userWithoutPassword as UserEntity, accessToken};
     }
 
     async findById(id: number): Promise<UserEntity | null> {
