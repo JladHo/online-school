@@ -96,7 +96,7 @@ export default function ApplicationForm() {
             </div>
           </div>
           
-          <div className="p-10 md:w-7/12">
+          <div className="p-6 md:p-10 md:w-7/12">
             {status === 'success' ? (
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-10">
                 <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">

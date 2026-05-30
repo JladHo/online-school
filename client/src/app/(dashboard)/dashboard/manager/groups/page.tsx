@@ -162,7 +162,7 @@ export default function ManagerGroupsPage() {
   });
 
   return (
-    <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col">
+    <div className="space-y-6 min-h-[calc(100vh-8rem)] lg:h-[calc(100vh-8rem)] flex flex-col">
       <div className="bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden flex-shrink-0">
         <div className="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-indigo-900 to-transparent"></div>
         <h1 className="text-3xl font-bold text-white mb-2 relative z-10">Группы (Учебная логистика)</h1>
