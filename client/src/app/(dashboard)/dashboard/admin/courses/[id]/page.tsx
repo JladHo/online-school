@@ -358,7 +358,7 @@ export default function AdminCourseStructurePage({ params }: { params: { id: str
               </div>
 
               {/* Add Block Menu */}
-              <div className="flex items-center gap-2 pt-4 border-t border-gray-100 pb-8">
+              <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100 pb-8">
                 <span className="text-sm font-medium text-gray-500 mr-2">Добавить блок:</span>
                 <button onClick={() => addBlock('text')} className="bg-white border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 text-gray-700 px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors">
                   <FileText size={16} className="text-indigo-500"/> Текст
