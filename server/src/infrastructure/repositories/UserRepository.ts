@@ -39,7 +39,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findByPhone(phone: string): Promise<UserEntity | null> {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user.findFirst({
             where: { phone },
         });
         return user ? UserMapper.toEntity(user) : null;

@@ -1,6 +1,7 @@
 import {CreateUserDto} from "./dto/CreateUserDto";
 import {UpdateUserDto} from "./dto/UpdateUserDto";
 import {UserEntity} from "../../entities/UserEntity";
+
 export interface IUserRepository {
     create(data: CreateUserDto & { password: string }): Promise<UserEntity>;
     findById(id: number): Promise<UserEntity | null>;
@@ -11,3 +12,5 @@ export interface IUserRepository {
     update(id: number, dto: UpdateUserDto): Promise<UserEntity | null>;
     delete(id: number): Promise<void>;
 }
+
+

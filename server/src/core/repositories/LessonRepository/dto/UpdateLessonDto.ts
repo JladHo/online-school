@@ -1,5 +1,6 @@
-export interface UpdateLessonDto {
-    title?: string;
-    description?: string;
-    content?: string;
-}
+import { z } from 'zod';
+import { CreateLessonSchema } from './CreateLessonDto';
+
+export const UpdateLessonSchema = CreateLessonSchema.partial();
+
+export type UpdateLessonDto = z.infer<typeof UpdateLessonSchema>;

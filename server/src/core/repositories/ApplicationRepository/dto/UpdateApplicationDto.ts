@@ -1,4 +1,6 @@
-import {ApplicationStatus} from "../../../entities/ApplicationEntity";
-export interface UpdateApplicationDto {
-    status?: ApplicationStatus;
-}
+import { z } from 'zod';
+import { CreateApplicationSchema } from './CreateApplicationDto';
+
+export const UpdateApplicationSchema = CreateApplicationSchema.partial();
+
+export type UpdateApplicationDto = z.infer<typeof UpdateApplicationSchema>;

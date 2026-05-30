@@ -6,80 +6,7 @@ datasource db {
   provider = "sqlite"
 }
 
-model User {
-  id          Int        @id @default(autoincrement())
-  parentName  String
-  studentName String
-  phone       String     @unique
-  email       String     @unique
-  password    String
-  role        UserRole   @default(user)
-  birthday    DateTime?
-  purchases   Purchase[]
-  reviews     Review[]
-}
-
-model Course {
-  id           Int           @id @default(autoincrement())
-  title        String
-  description  String
-  ageCategory  String
-  price        Float
-  modules      Module[]
-  purchases    Purchase[]
-  reviews      Review[]
-  applications Application[]
-}
-
-model Module {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  courseId    Int
-  course      Course   @relation(fields: [courseId], references: [id])
-  lessons     Lesson[]
-}
-
-model Lesson {
-  id          Int    @id @default(autoincrement())
-  title       String
-  description String
-  content     String
-  moduleId    Int
-  module      Module @relation(fields: [moduleId], references: [id])
-}
-
-model Purchase {
-  id            Int      @id @default(autoincrement())
-  purchasePrice Float
-  purchaseAt    DateTime @default(now())
-  userId        Int
-  user          User     @relation(fields: [userId], references: [id])
-  courseId      Int
-  course        Course   @relation(fields: [courseId], references: [id])
-}
-
-model Review {
-  id       Int    @id @default(autoincrement())
-  text     String
-  rating   Int
-  userId   Int
-  user     User   @relation(fields: [userId], references: [id])
-  courseId Int
-  course   Course @relation(fields: [courseId], references: [id])
-}
-
-model Application {
-  id          Int               @id @default(autoincrement())
-  parentName  String
-  studentName String
-  phone       String
-  email       String
-  status      ApplicationStatus @default(new)
-  courseId    Int
-  course      Course            @relation(fields: [courseId], references: [id])
-}
-
+// Роли пользователей
 enum UserRole {
   admin
   manager
@@ -87,9 +14,261 @@ enum UserRole {
   user
 }
 
-enum ApplicationStatus {
-  new
-  in_progress
-  closed
-  rejected
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  phone         String?
+  password      String
+  role          UserRole  @default(user)
+  
+  // Общие поля
+  fullName      String?   // ФИО (Используется для сотрудников)
+  birthday      DateTime?
+  
+  // Специфичные поля для Ученика
+  parentName    String?   // ФИО родителя (из заявки)
+  studentName   String?   // Имя самого ребенка
+  bonusPoints   Int       @default(0) // Баланс виртуальной валюты
+  
+  // Связи для Ученика (Финансы и Геймификация)
+  purchases             Purchase[]
+  pointTransactions     PointTransaction[]
+  storeOrders           StoreOrder[]          @relation("StudentOrders")
+  
+  // Связи для Ученика (Обучение)
+  studentGroups         StudentGroup[]
+  homeworkSubmissions   HomeworkSubmission[]
+  attendances           Attendance[]
+
+  // Связи для Преподавателя
+  teachingGroups        Group[]               @relation("TeacherGroups")
+  teachingSessions      LessonSession[]       @relation("TeacherSessions")
+  checkedSubmissions    HomeworkSubmission[]  @relation("TeacherChecks")
+
+  // Связи для Менеджера
+  processedApplications Application[]         @relation("ManagerApplications")
+  managedOrders         StoreOrder[]          @relation("ManagerOrders")
 }
+
+model Course {
+  id           Int           @id @default(autoincrement())
+  title        String        // Название курса 
+  description  String        // Маркетинговое описание для лендинга
+  ageCategory  String        // Возрастная группа 
+  price        Float         // Стоимость доступа к курсу
+  
+  // Связи
+  modules      Module[]
+  purchases    Purchase[]
+  applications Application[]
+  groups       Group[]
+}
+
+model Module {
+  id          Int      @id @default(autoincrement())
+  title       String   // Название модуля 
+  description String?  // Краткое описание модуля
+  
+  courseId    Int
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id          Int      @id @default(autoincrement())
+  title       String   // Тема конкретного занятия
+  description String?  // Краткое описание урока
+  content     String?  // JSON-массив блоков контента (текст, фото, видео)
+  orderNumber Int      // Порядковый номер (критично для логики последовательного прохождения)
+  
+  moduleId    Int
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  homework    Homework?
+  sessions    LessonSession[]
+}
+
+model Homework {
+  id          Int      @id @default(autoincrement())
+  description String   // Текст задания (поддерживает Markdown)
+  lessonId    Int      @unique
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  submissions HomeworkSubmission[]
+}
+
+enum SubmissionStatus {
+  pending   // Ожидает проверки
+  accepted  // Принято (успешно)
+  rejected  // Отклонено (требует доработки)
+}
+
+model HomeworkSubmission {
+  id          Int      @id @default(autoincrement())
+  content     String   // Текст ответа ученика или ссылки на файлы
+  score       Int?     // Оценка от 0 до 100
+  status      SubmissionStatus @default(pending)
+  teacherComment String? // Обратная связь (комментарий) от преподавателя
+  submittedAt DateTime @default(now()) // Дата и время отправки решения
+  
+  homeworkId  Int
+  homework    Homework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+  
+  studentId   Int
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  checkerId   Int?     // Преподаватель, который проверил эту работу
+  checker     User?    @relation("TeacherChecks", fields: [checkerId], references: [id], onDelete: SetNull)
+}
+
+enum GroupType {
+  individual // Индивидуальное занятие
+  group      // Групповое занятие
+}
+
+model Group {
+  id          Int       @id @default(autoincrement())
+  name        String    // Название группы 
+  type        GroupType @default(group)
+  
+  courseId    Int?
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  
+  teacherId   Int?
+  teacher     User?     @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: SetNull)
+  
+  students    StudentGroup[]
+  sessions    LessonSession[]
+}
+
+model StudentGroup {
+  studentId   Int
+  student     User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  groupId     Int
+  group       Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  teacherNote String? 
+
+  @@id([studentId, groupId])
+}
+
+model LessonSession {
+  id          Int      @id @default(autoincrement())
+  scheduledAt DateTime // Дата и время начала начала занятия
+  durationMin Int      // Продолжительность в минутах
+  meetingLink String?  // Ссылка на онлайн-конференцию
+  
+  lessonId    Int
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  
+  groupId     Int
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  teacherId   Int?
+  teacher     User?    @relation("TeacherSessions", fields: [teacherId], references: [id], onDelete: SetNull)
+
+  attendances Attendance[]
+}
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  isPresent   Boolean  @default(false) // Присутствовал ли ученик на созвоне
+  
+  sessionId   Int
+  session     LessonSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  studentId   Int
+  student     User          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([sessionId, studentId]) // Один ученик может иметь только одну отметку для конкретного занятия
+}
+
+// ==========================================
+// БЛОК 4: CRM И ГЕЙМИФИКАЦИЯ
+// ==========================================
+
+enum ApplicationStatus {
+  new         // Новая заявка с лендинга
+  in_progress // Взят в работу менеджером
+  closed      // Успешно закрыта (аккаунт создан)
+  rejected    // Отклонена (спам / отказ)
+}
+
+model Application {
+  id          Int               @id @default(autoincrement())
+  parentName  String            // Имя родителя из формы
+  studentName String            // Имя ребенка из формы
+  phone       String            // Контактный телефон
+  email       String            // Электронная почта
+  status      ApplicationStatus @default(new)
+  createdAt   DateTime          @default(now())
+  
+  courseId    Int?
+  course      Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  
+  managerId   Int?              // Менеджер, взявший заявку в работу
+  manager     User?             @relation("ManagerApplications", fields: [managerId], references: [id], onDelete: SetNull)
+}
+
+model Purchase {
+  id            Int      @id @default(autoincrement())
+  purchasePrice Float    // Зафиксированная стоимость на момент продажи
+  purchaseAt    DateTime @default(now())
+  
+  // Резервные поля (Обеспечивают сохранность чека при удалении аккаунта пользователя)
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  
+  userId        Int?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  courseId      Int?
+  course        Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+}
+
+model StoreItem {
+  id          Int      @id @default(autoincrement())
+  title       String   // Название товара (например, "Футболка")
+  description String   // Описание товара
+  price       Int      // Стоимость в бонусных баллах
+  icon        String   // Название иконки Lucide-react
+  color       String   // Цвет иконки (CSS класс)
+  bg          String   // Цвет фона карточки (CSS класс)
+  
+  orders      StoreOrder[]
+}
+
+model PointTransaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int      // Сумма транзакции 
+  reason    String   // Причина операции
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  new         // Новый заказ из магазина
+  processing  // Товар в процессе сборки/доставки
+  delivered   // Товар выдан ученику
+  cancelled   // Заказ отменен (баллы не возвращаются автоматически)
+}
+
+model StoreOrder {
+  id          Int      @id @default(autoincrement())
+  status      OrderStatus @default(new)
+  createdAt   DateTime @default(now())
+  
+  userId      Int
+  user        User     @relation("StudentOrders", fields: [userId], references: [id], onDelete: Cascade)
+  
+  itemId      Int
+  item        StoreItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  managerId   Int?     // Менеджер, обрабатывающий выдачу товара
+  manager     User?    @relation("ManagerOrders", fields: [managerId], references: [id], onDelete: SetNull)
+}
+

@@ -1,6 +1,6 @@
-import {CreateLessonDto} from "./dto/CreateLessonDto";
-import {UpdateLessonDto} from "./dto/UpdateLessonDto";
-import {LessonEntity} from "../../entities/LessonEntity";
+import { LessonEntity } from '../../entities/LessonEntity';
+import { CreateLessonDto } from './dto/CreateLessonDto';
+import { UpdateLessonDto } from './dto/UpdateLessonDto';
 
 export interface ILessonRepository {
     create(dto: CreateLessonDto): Promise<LessonEntity>;

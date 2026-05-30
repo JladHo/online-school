@@ -1,6 +1,6 @@
-import {CreateApplicationDto} from "./dto/CreateApplicationDto";
-import {UpdateApplicationDto} from "./dto/UpdateApplicationDto";
-import {ApplicationEntity} from "../../entities/ApplicationEntity";
+import { ApplicationEntity } from '../../entities/ApplicationEntity';
+import { CreateApplicationDto } from './dto/CreateApplicationDto';
+import { UpdateApplicationDto } from './dto/UpdateApplicationDto';
 
 export interface IApplicationRepository {
     create(dto: CreateApplicationDto): Promise<ApplicationEntity>;

@@ -35,3 +35,4 @@ export const AuthMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
         }
     }
 }
+

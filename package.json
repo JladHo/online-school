@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "prisma": "^7.4.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.4.1"
+  }
+}

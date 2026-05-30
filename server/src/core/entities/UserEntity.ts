@@ -2,10 +2,12 @@ export type UserRole = 'admin' | 'manager' | 'teacher' | 'user';
 
 export interface UserEntity {
     id: number;
-    parentName: string;
-    studentName: string;
-    phone: string;
     email: string;
+    phone: string | null;
     role: UserRole;
-    birthday?: Date;
+    fullName: string | null;
+    birthday: Date | null;
+    parentName: string | null;
+    studentName: string | null;
+    bonusPoints: number;
 }

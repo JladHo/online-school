@@ -1,6 +1,6 @@
-import {CreateCourseDto} from "./dto/CreateCourseDto";
-import {UpdateCourseDto} from "./dto/UpdateCourseDto";
-import {CourseEntity} from "../../entities/CourseEntity";
+import { CourseEntity } from '../../entities/CourseEntity';
+import { CreateCourseDto } from './dto/CreateCourseDto';
+import { UpdateCourseDto } from './dto/UpdateCourseDto';
 
 export interface ICourseRepository {
     create(dto: CreateCourseDto): Promise<CourseEntity>;

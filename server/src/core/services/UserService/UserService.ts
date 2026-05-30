@@ -6,6 +6,7 @@ import {LoginDto} from "../../repositories/UserRepository/dto/LoginDto";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {ConflictError, UnauthorizedError} from "../../../errors/HttpError";
+import { prisma } from '../../../infrastructure/db';
 
 function generatePassword(length = 10): string {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -92,5 +93,166 @@ export class UserService {
 
     async delete(id: number) {
         return this.userRepository.delete(id);
+    }
+
+    async getPointsHistory(userId: number) {
+        return prisma.pointTransaction.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    async getStoreItems() {
+        return prisma.storeItem.findMany();
+    }
+
+    async getUserCourses(userId: number) {
+        const purchases = await prisma.purchase.findMany({
+            where: { userId },
+            include: { course: true }
+        });
+        return purchases.map(p => p.course);
+    }
+
+    async getUserGroups(userId: number) {
+        const links = await prisma.studentGroup.findMany({
+            where: { studentId: userId },
+            include: { group: true }
+        });
+        return links.map(l => l.group);
+    }
+
+    async getStudentsForManager() {
+        const students = await prisma.user.findMany({
+            where: { role: 'user' },
+            include: {
+                studentGroups: {
+                    include: { group: true }
+                },
+                purchases: {
+                    include: { course: true }
+                }
+            }
+        });
+        return students;
+    }
+
+    async getFreePool() {
+        const students = await prisma.user.findMany({
+            where: { role: 'user' },
+            include: {
+                studentGroups: { include: { group: true } },
+                purchases: { include: { course: true } }
+            }
+        });
+
+        const pool: any[] = [];
+        for (const student of students) {
+            for (const purchase of student.purchases) {
+                const hasGroupForCourse = student.studentGroups.some(sg => sg.group.courseId === purchase.courseId);
+                if (!hasGroupForCourse) {
+                    pool.push({
+                        student: { id: student.id, fullName: student.fullName, studentName: student.studentName, email: student.email, phone: student.phone },
+                        course: purchase.course,
+                        purchaseAt: purchase.purchaseAt
+                    });
+                }
+            }
+        }
+        return pool;
+    }
+
+    async purchaseStoreItem(userId: number, itemId: number) {
+        const item = await prisma.storeItem.findUnique({ where: { id: itemId } });
+        if (!item) throw new ConflictError('Товар не найден');
+
+        const user = await this.userRepository.findById(userId);
+        if (!user) throw new ConflictError('Пользователь не найден');
+
+        if ((user.bonusPoints || 0) < item.price) {
+            throw new ConflictError('Недостаточно баллов');
+        }
+
+        // Deduct points
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { bonusPoints: { decrement: item.price } }
+        });
+
+        // Add transaction
+        await prisma.pointTransaction.create({
+            data: {
+                userId,
+                amount: -item.price,
+                reason: `Покупка: ${item.title}`
+            }
+        });
+
+        // Create Order
+        await prisma.storeOrder.create({
+            data: {
+                userId,
+                itemId
+            }
+        });
+
+        return updatedUser;
+    }
+
+    async grantCourseAccess(userId: number, courseId: number) {
+        const user = await this.userRepository.findById(userId);
+        if (!user) throw new ConflictError('Пользователь не найден');
+
+        // Check if already has access
+        const existingPurchase = await prisma.purchase.findFirst({
+            where: { userId, courseId }
+        });
+        if (existingPurchase) throw new ConflictError('Ученик уже имеет доступ к этому курсу');
+
+        const course = await prisma.course.findUnique({ where: { id: courseId } });
+
+        const purchase = await prisma.purchase.create({
+            data: {
+                userId,
+                courseId,
+                purchasePrice: course?.price || 0,
+                purchaseAt: new Date(),
+                customerName: user.fullName || user.studentName,
+                customerEmail: user.email,
+                customerPhone: user.phone
+            }
+        });
+
+        return purchase;
+    }
+
+    async revokeCourseAccess(userId: number, courseId: number) {
+        const purchase = await prisma.purchase.findFirst({
+            where: { userId, courseId }
+        });
+
+        if (!purchase) throw new ConflictError('Ученик не имеет доступа к этому курсу');
+
+        await prisma.purchase.delete({
+            where: { id: purchase.id }
+        });
+    }
+
+    async getStoreOrders() {
+        return prisma.storeOrder.findMany({
+            include: {
+                user: { select: { id: true, fullName: true, studentName: true, email: true, phone: true } },
+                item: true,
+                manager: { select: { id: true, fullName: true, email: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    async updateStoreOrder(orderId: number, status: any, managerId: number) {
+        return prisma.storeOrder.update({
+            where: { id: orderId },
+            data: { status, managerId }
+        });
     }
 }

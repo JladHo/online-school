@@ -1,6 +1,6 @@
-import {CreateModuleDto} from "./dto/CreateModuleDto";
-import {UpdateModuleDto} from "./dto/UpdateModuleDto";
-import {ModuleEntity} from "../../entities/ModuleEntity";
+import { ModuleEntity } from '../../entities/ModuleEntity';
+import { CreateModuleDto } from './dto/CreateModuleDto';
+import { UpdateModuleDto } from './dto/UpdateModuleDto';
 
 export interface IModuleRepository {
     create(dto: CreateModuleDto): Promise<ModuleEntity>;
