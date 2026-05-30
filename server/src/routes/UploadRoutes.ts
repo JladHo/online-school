@@ -32,8 +32,10 @@ router.post('/', AuthMiddleware, upload.single('image'), (req: Request, res: Res
             return res.status(400).json({ message: 'Нет файла для загрузки' });
         }
         
-        // Return the URL to access the uploaded file
-        const fileUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+        // Return the absolute URL to access the uploaded file
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
         res.status(201).json({ url: fileUrl });
     } catch (error) {
         console.error(error);
