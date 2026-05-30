@@ -62,14 +62,14 @@ export default function Courses() {
                     <Code2 size={24} />
                   </div>
                   <div className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full mb-4">
-                    {course.ageCategory}
+                    {course.ageCategory} лет
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">{course.title}</h3>
                   <p className="text-gray-600 mb-6 line-clamp-3">
                     {course.description}
                   </p>
                   <div className="text-2xl font-bold text-blue-600">
-                    {course.price.toLocaleString('ru-RU')} ₽ <span className="text-sm font-normal text-gray-500">/ месяц</span>
+                    {course.price.toLocaleString('ru-RU')} ₽ 
                   </div>
                 </div>
                 <div className="p-4 border-t border-gray-50 bg-gray-50/50">

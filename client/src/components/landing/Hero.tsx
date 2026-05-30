@@ -9,7 +9,7 @@ export default function Hero() {
             <span className="flex h-2 w-2 rounded-full bg-blue-600"></span>
             Набор на 2026 год открыт
           </div>
-          <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-8">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-8 text-balance">
             Открой мир <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">программирования</span> для своего ребенка
           </h1>
           <p className="text-lg lg:text-xl text-gray-600 mb-10 leading-relaxed">
