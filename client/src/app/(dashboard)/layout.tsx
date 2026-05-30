@@ -24,26 +24,22 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, logout, user } = useAuthStore();
+  const { isAuthenticated, isHydrated, logout, user } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted && !isAuthenticated) {
+    if (isHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, mounted, router]);
+  }, [isAuthenticated, isHydrated, router]);
 
-  if (!mounted || !isAuthenticated) {
+  if (!isHydrated || !isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-gray-500 font-medium">Загрузка...</p>
+        <p className="mt-4 text-gray-500 font-medium">Проверка сессии...</p>
       </div>
     );
   }
