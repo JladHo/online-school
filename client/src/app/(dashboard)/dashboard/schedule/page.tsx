@@ -479,8 +479,8 @@ export default function SchedulePage() {
       </div>
 
       {/* Custom Date Navigator */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm ring-1 ring-gray-200 flex items-center justify-between">
-        <div className="flex items-center">
+      <div className="bg-white p-4 rounded-2xl shadow-sm ring-1 ring-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center justify-between w-full sm:w-auto">
           <button onClick={handlePrev} className="p-2 text-blue-800 hover:bg-blue-50 rounded-full transition">
             <ChevronLeft size={24} />
           </button>
