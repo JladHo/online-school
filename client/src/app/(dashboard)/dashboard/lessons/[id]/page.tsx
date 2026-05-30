@@ -195,8 +195,8 @@ export default function LessonPage({ params }: { params: { id: string } }) {
               <h3 className="text-lg font-medium text-gray-900">История ваших решений:</h3>
               {submissionsHistory.map((sub, index) => (
                 <div key={sub.id} className={`rounded-xl border p-6 ${index === 0 ? 'border-indigo-200 bg-indigo-50/30' : 'border-gray-200 bg-gray-50 opacity-75'}`}>
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-1 rounded-md">
                         Попытка #{submissionsHistory.length - index}
                       </span>
