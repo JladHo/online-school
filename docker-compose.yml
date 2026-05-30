@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: codeschool_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    # Монтируем базу данных SQLite и загрузки как внешние тома,
+    # чтобы при перезагрузке докера пользователи и картинки не удалялись
+    volumes:
+      - ./server/prisma/dev.db:/usr/src/app/prisma/dev.db
+      - ./server/public/uploads:/usr/src/app/public/uploads
+    # Подключаем секреты из .env файла
+    env_file:
+      - ./server/.env
+      
+  frontend:
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # ВАЖНО: Когда будете деплоить на сервер, замените 'localhost' на IP-адрес сервера (например, http://89.100.200.50:3000/api)
+        - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+    container_name: codeschool_frontend
+    restart: always
+    ports:
+      - "3001:3001"
+    # Фронтенд запустится только после того, как стартанет бэкенд
+    depends_on:
+      - backend
