@@ -554,7 +554,7 @@ export default function SchedulePage() {
         </div>
 
         {user?.role === 'teacher' || user?.role === 'admin' || user?.role === 'manager' ? (
-          <button onClick={handleNewSession} className="hidden sm:flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition">
+          <button onClick={handleNewSession} className="w-full sm:w-auto flex justify-center items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition">
             <span className="text-xl leading-none">+</span> Новое занятие
           </button>
         ) : null}
