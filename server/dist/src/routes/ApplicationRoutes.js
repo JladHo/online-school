@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.applicationRouter = void 0;
+const express_1 = require("express");
+const ApplicationController_1 = require("../presentation/controllers/ApplicationController");
+const ApplicationRepository_1 = require("../infrastructure/repositories/ApplicationRepository");
+const PurchaseRepository_1 = require("../infrastructure/repositories/PurchaseRepository");
+const ApplicationService_1 = require("../core/services/ApplicationService/ApplicationService");
+const AuthMiddleware_1 = require("../middleware/AuthMiddleware");
+const ValidationMiddleware_1 = require("../middleware/ValidationMiddleware");
+const CreateApplicationDto_1 = require("../core/repositories/ApplicationRepository/dto/CreateApplicationDto");
+const applicationRepository = new ApplicationRepository_1.ApplicationRepository();
+const purchaseRepository = new PurchaseRepository_1.PurchaseRepository();
+const applicationService = new ApplicationService_1.ApplicationService(applicationRepository, purchaseRepository);
+const applicationController = new ApplicationController_1.ApplicationController(applicationService);
+const router = (0, express_1.Router)();
+router.get('/', AuthMiddleware_1.AuthMiddleware, (req, res, next) => applicationController.getAll(req, res, next));
+router.post('/', (0, ValidationMiddleware_1.validate)(CreateApplicationDto_1.CreateApplicationSchema), (req, res, next) => applicationController.create(req, res, next)); // No AuthMiddleware for creating from landing
+router.patch('/:id/manager', AuthMiddleware_1.AuthMiddleware, (req, res, next) => applicationController.assignManager(req, res, next));
+router.patch('/:id/status', AuthMiddleware_1.AuthMiddleware, (req, res, next) => applicationController.changeStatus(req, res, next));
+router.post('/:id/purchase', AuthMiddleware_1.AuthMiddleware, (req, res, next) => applicationController.createPurchaseFromApplication(req, res, next));
+exports.applicationRouter = router;

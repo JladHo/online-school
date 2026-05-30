@@ -22,4 +22,4 @@ RUN npx tsc
 EXPOSE 3000
 
 # Команда для запуска сервера (уже скомпилированного)
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]

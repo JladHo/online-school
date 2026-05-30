@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.courseRouter = void 0;
+const express_1 = require("express");
+const CourseController_1 = require("../presentation/controllers/CourseController");
+const CourseRepository_1 = require("../infrastructure/repositories/CourseRepository");
+const CourseService_1 = require("../core/services/CourseService/CourseService");
+const AuthMiddleware_1 = require("../middleware/AuthMiddleware");
+const courseRepository = new CourseRepository_1.CourseRepository();
+const courseService = new CourseService_1.CourseService(courseRepository);
+const courseController = new CourseController_1.CourseController(courseService);
+const router = (0, express_1.Router)();
+router.post('/', AuthMiddleware_1.AuthMiddleware, (req, res, next) => courseController.create(req, res, next));
+router.get('/', (req, res, next) => courseController.getAll(req, res, next));
+router.get('/:id', (req, res, next) => courseController.getById(req, res, next));
+router.patch('/:id', AuthMiddleware_1.AuthMiddleware, (req, res, next) => courseController.update(req, res, next));
+router.delete('/:id', AuthMiddleware_1.AuthMiddleware, (req, res, next) => courseController.delete(req, res, next));
+exports.courseRouter = router;
