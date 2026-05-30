@@ -94,13 +94,24 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen flex bg-gray-50 font-sans">
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col hidden md:flex fixed h-full z-20">
-        <div className="h-16 flex items-center px-6 border-b border-gray-800 bg-gray-900">
-          <Link href="/dashboard" className="flex items-center gap-2 text-white">
+      <aside className={`w-64 bg-gray-900 text-gray-300 flex-col fixed h-full z-50 transition-transform duration-300 ease-in-out md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 flex' : '-translate-x-full md:flex'}`}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800 bg-gray-900 shrink-0">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white" onClick={() => setIsMobileMenuOpen(false)}>
             <Terminal size={24} className="text-blue-500" />
             <span className="font-bold text-lg tracking-tight">CodeSchool</span>
           </Link>
+          <button className="md:hidden text-gray-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
+            &times;
+          </button>
         </div>
         
         <div className="p-4 flex-grow overflow-y-auto">
@@ -114,6 +125,7 @@ export default function DashboardLayout({
                 <Link 
                   key={item.name}
                   href={item.href} 
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
                     isActive 
                       ? 'bg-blue-600 text-white font-medium' 
@@ -128,9 +140,9 @@ export default function DashboardLayout({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t border-gray-800 shrink-0">
           <div className="flex items-center gap-3 px-2 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold shrink-0">
               {(user?.fullName || user?.studentName)?.charAt(0) || user?.email?.charAt(0).toUpperCase()}
             </div>
             <div className="overflow-hidden">
@@ -152,13 +164,21 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 md:ml-64 flex flex-col min-h-screen min-w-0">
         {/* Mobile Header (visible only on small screens) */}
-        <header className="md:hidden bg-gray-900 text-white h-16 flex items-center justify-between px-4 sticky top-0 z-20">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Terminal size={24} className="text-blue-500" />
-            <span className="font-bold text-lg">CodeSchool</span>
-          </Link>
+        <header className="md:hidden bg-gray-900 text-white h-16 flex items-center justify-between px-4 sticky top-0 z-30 shrink-0">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="text-gray-300 hover:text-white p-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <Terminal size={24} className="text-blue-500" />
+              <span className="font-bold text-lg">CodeSchool</span>
+            </Link>
+          </div>
           <button 
             onClick={() => {
               logout();
@@ -171,7 +191,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-8">
+        <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
           {children}
         </main>
       </div>
