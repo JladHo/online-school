@@ -12,7 +12,7 @@ services:
     # Монтируем базу данных SQLite и загрузки как внешние тома,
     # чтобы при перезагрузке докера пользователи и картинки не удалялись
     volumes:
-      - ./server/prisma/dev.db:/usr/src/app/prisma/dev.db
+      - ./server/dev.db:/usr/src/app/dev.db
       - ./server/public/uploads:/usr/src/app/public/uploads
     # Подключаем секреты из .env файла
     env_file:
