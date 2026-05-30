@@ -45,22 +45,25 @@ export class CourseProgressService {
             return true;
         }
 
-        const previousLesson = courseLessons[currentIndex - 1];
+        // Берем все уроки, которые идут ДО целевого урока
+        const previousLessons = courseLessons.slice(0, currentIndex);
+        const previousLessonIds = previousLessons.map(l => l.id);
 
-        // Check Homework for previous lesson
+        // Находим все домашние задания, которые относятся к этим предыдущим урокам
         const allHomeworks = await this.homeworkRepository.findAll();
-        const previousLessonHomeworks = allHomeworks.filter(h => h.lessonId === previousLesson.id);
+        const requiredHomeworks = allHomeworks.filter(h => previousLessonIds.includes(h.lessonId));
 
-        // If there's no homework for the previous lesson, we assume it's "completed" automatically
-        if (previousLessonHomeworks.length === 0) {
+        // Если ни в одном предыдущем уроке вообще нет ДЗ, доступ открыт
+        if (requiredHomeworks.length === 0) {
             return true;
         }
 
+        // Проверяем, что КАЖДОЕ предыдущее ДЗ было сдано на 100 баллов
         const submissions = await this.submissionRepository.findSubmissionsByStudentId(studentId);
-        const hasAcceptedHomework = previousLessonHomeworks.every(hw =>
+        const allCompleted = requiredHomeworks.every(hw =>
             submissions.some(sub => sub.homeworkId === hw.id && sub.score === 100)
         );
 
-        return hasAcceptedHomework;
+        return allCompleted;
     }
 }
