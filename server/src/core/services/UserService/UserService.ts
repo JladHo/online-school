@@ -250,9 +250,43 @@ export class UserService {
     }
 
     async updateStoreOrder(orderId: number, status: any, managerId: number) {
+        const order = await prisma.storeOrder.findUnique({
+            where: { id: orderId },
+            include: { item: true }
+        });
+
+        if (!order) throw new ConflictError('Заказ не найден');
+
+        // Возврат баллов при отмене заказа
+        if (status === 'cancelled' && order.status !== 'cancelled') {
+            await prisma.$transaction([
+                prisma.user.update({
+                    where: { id: order.userId },
+                    data: { bonusPoints: { increment: order.item.price } }
+                }),
+                prisma.pointTransaction.create({
+                    data: {
+                        userId: order.userId,
+                        amount: order.item.price,
+                        reason: `Возврат за отмену: ${order.item.title}`
+                    }
+                }),
+                prisma.storeOrder.update({
+                    where: { id: orderId },
+                    data: { status, managerId }
+                })
+            ]);
+            return prisma.storeOrder.findUnique({ 
+                where: { id: orderId }, 
+                include: { item: true, user: { select: { id: true, fullName: true, studentName: true, email: true, phone: true } }, manager: { select: { id: true, fullName: true, email: true } } } 
+            });
+        }
+
+        // В остальных случаях просто обновляем статус
         return prisma.storeOrder.update({
             where: { id: orderId },
-            data: { status, managerId }
+            data: { status, managerId },
+            include: { item: true, user: { select: { id: true, fullName: true, studentName: true, email: true, phone: true } }, manager: { select: { id: true, fullName: true, email: true } } }
         });
     }
 }
